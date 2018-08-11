@@ -19,6 +19,7 @@ namespace Hybrid.Systems
             foreach (var entity in GetEntities<Group>())
             {
                 entity.PlayerInput.Horizontal = Input.GetAxis("Horizontal");
+                entity.PlayerInput.Vertical = Input.GetAxis("Vertical");
             }
 
         }

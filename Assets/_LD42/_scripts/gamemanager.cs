@@ -11,6 +11,8 @@ public class gamemanager : MonoBehaviour {
     public GameObject mainCharacter;
     public static gamemanager instance;
 
+    public int victoryCollider = 100;
+    public int deathCollider = 1;
 
 
     public Tilemap tileMap;
@@ -140,6 +142,39 @@ public class gamemanager : MonoBehaviour {
         }
     }
 
+    public int GetColliderType(string colliderName)
+    {
+
+        switch (colliderName)
+        {
+        case "Foreground Tiles":
+            //Debug.Log("Foreground Tile");
+            return 0;
+            break;
+        case "Zombie":
+        case "Deadly Tiles":
+            //Debug.Log("Deadly Tile");
+            return deathCollider;
+            break;
+        case "Victory Tiles":
+            return victoryCollider;
+            break;
+        default:
+            return -1;
+                break;
+        }
+
+    }
+
+    public void NextLevel() {
+        Debug.Log(string.Format("Next Level!"));
+
+    }
+
+    public void Death() {
+        Debug.Log(string.Format("You Dead!"));
+
+    }
 
 
 
