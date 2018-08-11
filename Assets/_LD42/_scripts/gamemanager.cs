@@ -8,8 +8,10 @@ public class gamemanager : MonoBehaviour {
     public int mapWidth;
     public int mapHeight;
     public int[,] map;
-    public Sprite baseHex;
+    public GameObject mainCharacter;
     public static gamemanager instance;
+
+
 
     public Tilemap tileMap;
     public Tile selectedTile;
@@ -35,19 +37,22 @@ public class gamemanager : MonoBehaviour {
     // Use this for initialization
     void Start () {
 		
-        //Init our map
-        GenerateMap(mapWidth, mapHeight);
+        ////Init our map
+        //GenerateMap(mapWidth, mapHeight);
 
-        //Perlin Noise it up
-        PerlinNoise(map, seed);
+        ////Perlin Noise it up
+        //PerlinNoise(map, seed);
 
-        //Randomly set 0,0 and 10,10 just to see where they are to the map
-        //map[0, 0] = 1;
-        //map[9, 9] = 1;
+        ////Randomly set 0,0 and 10,10 just to see where they are to the map
+        ////map[0, 0] = 1;
+        ////map[9, 9] = 1;
 
 
-        //Render Map
-        RenderMap(map, tileMap, selectedTile);
+        ////Render Map
+        //RenderMap(map, tileMap, selectedTile);
+
+
+        //V2 of the game
 
 
 
@@ -116,7 +121,6 @@ public class gamemanager : MonoBehaviour {
         }
     }
 
-
     public void PerlinNoise(int[,] map, float seed)
     {
         int newPoint;
@@ -135,5 +139,8 @@ public class gamemanager : MonoBehaviour {
             }
         }
     }
+
+
+
 
 }
