@@ -26,11 +26,17 @@ public class gamemanager : MonoBehaviour {
     public int maxlevel = 20;
     public float timeLeft;
     public float timeDefault;
+    [HideInInspector]
+    public int playerLives = 10;
+    [HideInInspector]
+    public int defaultLives = 10;
+
 
 
     //START UI STUFF
     public TextMeshProUGUI uiLevel;
     public TextMeshProUGUI uiTimeLeft;
+    public TextMeshProUGUI uiLivesLeft;
 
     //Death Stuff
     public GameObject uiDeadPanel;
@@ -40,15 +46,12 @@ public class gamemanager : MonoBehaviour {
     //END UI STUFF
 
     public GameObject[] levels;
-    [HideInInspector] public float knockbackforce = 2.5f;
+    [HideInInspector] public float knockbackforce = 5f;
 
 
     private Vector3 startPostion = new Vector3(0,0,0);
 
     public GameObject player;
-
-
-
     public bool dead = false;
     private bool nextLevel = false;
     public bool lockMovement = false;
@@ -114,6 +117,11 @@ public class gamemanager : MonoBehaviour {
 
     public void SetLevelText(int level) {
         uiLevel.text = string.Format("Level: {0}", level);
+    }
+
+    public void SetPlayerLives(int lives) {
+        playerLives = lives;
+        uiLivesLeft.text = string.Format("Lives: {0:N0}", lives);
     }
 
     public void GenerateMap(int width, int height, bool empty = true) {
@@ -216,6 +224,11 @@ public class gamemanager : MonoBehaviour {
 
     }
 
+    public void ResetColliders() {
+        //collide = 0;
+        //newCollide = 0;
+    }
+
     public void NextLevel() {
         if (currentLevel == maxlevel) {
             //TODO LAST LEVEL DO SOMETHING NICE
@@ -223,7 +236,7 @@ public class gamemanager : MonoBehaviour {
 
         Debug.Log(string.Format("Next Level!"));
         ResetPlayePos();
-        ResetTimer();
+        IncrementTimer(timeLeft);
         currentLevel++;
 
         SetLevelText(currentLevel);
@@ -280,11 +293,23 @@ public class gamemanager : MonoBehaviour {
         timeLeft = timeDefault;
     }
 
+    public void IncrementTimer(float timetoAdd) {
+        timeLeft = timeDefault + timetoAdd;
+    }
+
     /// <summary>
     /// Restart the current level
     /// </summary>
-    public void ResetLevel() {
+    public void RetryLevel() {
+        SetPlayerLives(playerLives--);
+        if (playerLives == 0) {
+            RestartGame();
+        }
 
+        ResetPlayePos();
+        dead = false;
+        ResetTimer();
+        UIShowHideDeathPanel();
     }
 
     public void RestartGame() {

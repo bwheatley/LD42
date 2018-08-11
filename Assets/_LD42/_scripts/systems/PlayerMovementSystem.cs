@@ -27,6 +27,8 @@ namespace Hybrid.Systems
 
                 //No moving if dead
                 if (gamemanager.instance.dead || gamemanager.instance.lockMovement) {
+                    entity.PlayerInput.Horizontal = 0;
+                    entity.PlayerInput.Vertical = 0;
                     return;
                 }
 
@@ -34,10 +36,11 @@ namespace Hybrid.Systems
                 //Have we hit something if so stop!
                 if (entity.PlayerCollision.collide != 1) {
                     
+                    
                     position.x += entity.Speed.Value * entity.PlayerInput.Horizontal * Time.deltaTime;
-                    rotation.w = Mathf.Clamp(entity.PlayerInput.Horizontal, -0.5f, 0.5f);
-
                     position.y += entity.Speed.Value * entity.PlayerInput.Vertical * Time.deltaTime;
+                    //rotation.w = Mathf.Clamp(entity.PlayerInput.Horizontal, -0.5f, 0.5f);
+
                     //rotation.w = Mathf.Clamp(entity.PlayerInput.Vertical, -0.5f, 0.5f);
 
                     entity.Transform.position = position;
@@ -45,14 +48,26 @@ namespace Hybrid.Systems
                 }
                 //If we're hitting a trigger apply the inverse of what we were just doing
                 else {
+
+                    if (entity.PlayerCollision.newCollide == 1) {
+                        if (entity.PlayerCollision.newCollide == 1)
+                        {
+                            entity.PlayerInput.Horizontal = 0;
+                            entity.PlayerInput.Vertical = 0;
+                            return;
+                        }
+
+                    }
+
                     //Make the collision detection better later.
 
                     float knockbackForce = gamemanager.instance.knockbackforce;
 
-                    position.x -= entity.Speed.Value * entity.PlayerInput.Horizontal * Time.deltaTime * knockbackForce;
-                    rotation.w = Mathf.Clamp(entity.PlayerInput.Horizontal, -0.5f, 0.5f);
+                    position.x -= (entity.Speed.Value * knockbackForce) * entity.PlayerInput.Horizontal * Time.deltaTime;
+                    position.y -= (entity.Speed.Value * knockbackForce) * entity.PlayerInput.Vertical * Time.deltaTime;
 
-                    position.y -= entity.Speed.Value * entity.PlayerInput.Vertical * Time.deltaTime * knockbackForce;
+                    //rotation.w = Mathf.Clamp(entity.PlayerInput.Horizontal, -0.5f, 0.5f);
+
 
                     entity.Transform.position = position;
                     entity.Transform.rotation = rotation;

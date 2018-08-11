@@ -12,6 +12,7 @@ namespace Hybrid.Systems
 
         private struct Group {
             public PlayerCollision PlayerCollision;
+            public PlayerInput PlayerInput;
         }
 
         protected override void OnUpdate() {
@@ -23,8 +24,14 @@ namespace Hybrid.Systems
                     //Victory?
                     if (entity.PlayerCollision.lastColldierType == gamemanager.instance.victoryCollider 
                         && gamemanager.instance.GetNextLevel() == false) {
+
                         gamemanager.instance.SetNextLevel();
                         gamemanager.instance.SetLockMovement(true);
+
+                        //Reset colliders
+                        entity.PlayerCollision.collide = 0;
+                        entity.PlayerCollision.newCollide = 0;
+
                         gamemanager.instance.NextLevel();
                         return;
                     }
