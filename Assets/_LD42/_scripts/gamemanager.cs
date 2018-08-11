@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class gamemanager : MonoBehaviour {
 
@@ -19,7 +21,34 @@ public class gamemanager : MonoBehaviour {
     public Tile selectedTile;
 
     public int seed = 12345;
-    
+
+    public int currentLevel = 1;
+    public float timeLeft;
+    public float timeDefault;
+
+
+    //START UI STUFF
+    public TextMeshProUGUI uiLevel;
+    public TextMeshProUGUI uiTimeLeft;
+
+    //Death Stuff
+    public GameObject uiDeadPanel;
+    public TextMeshProUGUI uiDeadLevelText;
+    public Button uiDeadButton;
+
+    //END UI STUFF
+
+    public GameObject[] levels;
+
+
+    private Vector3 startPostion = new Vector3(0,0,0);
+
+    public GameObject player;
+
+
+
+    public int dead = 0;
+
 
     private void Awake()
     {
@@ -62,7 +91,12 @@ public class gamemanager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+
+        //Run timer
+	    if (dead == 0) {
+	        Timer();
+	    }
+
 	}
 
 
@@ -168,14 +202,62 @@ public class gamemanager : MonoBehaviour {
 
     public void NextLevel() {
         Debug.Log(string.Format("Next Level!"));
+        ResetPlayePos();
+        
+    }
 
+    public void ResetPlayePos() {
+        Debug.Log(string.Format("Player Pos Start: {0} End: {1}", player.transform.position, startPostion));
+        player.transform.position = startPostion;
     }
 
     public void Death() {
         Debug.Log(string.Format("You Dead!"));
+        dead = 1;
 
+        //Set last level
+        uiDeadLevelText.text = string.Format("Last Level Reached: {0:N0}", currentLevel);
+            
+        UIShowHideDeathPanel();
     }
 
+
+
+
+    void Timer() {
+        timeLeft -= Time.deltaTime;
+        uiTimeLeft.text = string.Format("Time Left: {0:N0}", timeLeft);
+
+        if (timeLeft <= 0)
+        {
+            Death();
+        }
+
+        return;
+    }
+
+    public void RestartGame() {
+        ResetPlayePos();
+        currentLevel = 1;
+        dead = 0;
+
+        timeLeft = timeDefault;
+        UIShowHideDeathPanel();
+    }
+
+    public void UIShowHideDeathPanel() {
+
+        if (uiDeadPanel.activeSelf)
+        {
+            //_myCamera.LockCamera(false);
+            uiDeadPanel.SetActive(false);
+        }
+        else
+        {
+            //_myCamera.LockCamera(true);
+            uiDeadPanel.SetActive(true);
+        }
+    }
 
 
 }

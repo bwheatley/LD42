@@ -25,6 +25,12 @@ namespace Hybrid.Systems
                 var position = entity.Transform.position;
                 var rotation = entity.Transform.rotation;
 
+                //No moving if dead
+                if (gamemanager.instance.dead == 1) {
+                    return;
+                }
+
+
                 //Have we hit something if so stop!
                 if (entity.PlayerCollision.collide != 1) {
                     
