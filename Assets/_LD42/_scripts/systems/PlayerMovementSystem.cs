@@ -26,7 +26,7 @@ namespace Hybrid.Systems
                 var rotation = entity.Transform.rotation;
 
                 //No moving if dead
-                if (gamemanager.instance.dead == 1) {
+                if (gamemanager.instance.dead || gamemanager.instance.lockMovement) {
                     return;
                 }
 
@@ -47,7 +47,7 @@ namespace Hybrid.Systems
                 else {
                     //Make the collision detection better later.
 
-                    float knockbackForce = 10;
+                    float knockbackForce = gamemanager.instance.knockbackforce;
 
                     position.x -= entity.Speed.Value * entity.PlayerInput.Horizontal * Time.deltaTime * knockbackForce;
                     rotation.w = Mathf.Clamp(entity.PlayerInput.Horizontal, -0.5f, 0.5f);

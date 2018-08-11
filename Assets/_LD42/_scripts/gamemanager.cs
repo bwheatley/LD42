@@ -23,6 +23,7 @@ public class gamemanager : MonoBehaviour {
     public int seed = 12345;
 
     public int currentLevel = 1;
+    public int maxlevel = 20;
     public float timeLeft;
     public float timeDefault;
 
@@ -39,6 +40,7 @@ public class gamemanager : MonoBehaviour {
     //END UI STUFF
 
     public GameObject[] levels;
+    [HideInInspector] public float knockbackforce = 2.5f;
 
 
     private Vector3 startPostion = new Vector3(0,0,0);
@@ -47,7 +49,9 @@ public class gamemanager : MonoBehaviour {
 
 
 
-    public int dead = 0;
+    public bool dead = false;
+    private bool nextLevel = false;
+    public bool lockMovement = false;
 
 
     private void Awake()
@@ -67,7 +71,7 @@ public class gamemanager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-		
+
         ////Init our map
         //GenerateMap(mapWidth, mapHeight);
 
@@ -84,21 +88,33 @@ public class gamemanager : MonoBehaviour {
 
 
         //V2 of the game
+        //Debug.Log(string.Format("Load Level {0} Current Level: {1}", levels[currentLevel].name, levels[currentLevel - 1].name));
 
 
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    public void SetNextLevel() {
+        nextLevel = true;
+    }
+
+    public bool GetNextLevel() {
+        return nextLevel;
+    }
+
+    // Update is called once per frame
+    void Update () {
 
         //Run timer
-	    if (dead == 0) {
+	    if (!dead) {
 	        Timer();
 	    }
 
 	}
 
+    public void SetLevelText(int level) {
+        uiLevel.text = string.Format("Level: {0}", level);
+    }
 
     public void GenerateMap(int width, int height, bool empty = true) {
 
@@ -201,28 +217,51 @@ public class gamemanager : MonoBehaviour {
     }
 
     public void NextLevel() {
+        if (currentLevel == maxlevel) {
+            //TODO LAST LEVEL DO SOMETHING NICE
+        }
+
         Debug.Log(string.Format("Next Level!"));
         ResetPlayePos();
+        ResetTimer();
+        currentLevel++;
+
+        SetLevelText(currentLevel);
+        LoadLevel(currentLevel);
+
+        SetLockMovement(false);
+        nextLevel = false;
+
+
+    }
+
+    /// <summary>
+    /// Load level needs to turn off the old grid map and on the new one
+    /// </summary>
+    /// <param name="level"></param>
+    public void LoadLevel(int level) {
         
+        Debug.Log(string.Format("Load Level {0} Current Level: {1}", levels[currentLevel-1].name, levels[currentLevel-2].name));
+        //Turn off current level
+        levels[currentLevel - 2].SetActive(false);
+        levels[currentLevel - 1].SetActive(true);
     }
 
     public void ResetPlayePos() {
-        Debug.Log(string.Format("Player Pos Start: {0} End: {1}", player.transform.position, startPostion));
+        //Debug.Log(string.Format("Player Pos Start: {0} End: {1}", player.transform.position, startPostion));
         player.transform.position = startPostion;
     }
 
     public void Death() {
         Debug.Log(string.Format("You Dead!"));
-        dead = 1;
+        dead = true;
 
         //Set last level
+        //TODO Add a Retry level button
         uiDeadLevelText.text = string.Format("Last Level Reached: {0:N0}", currentLevel);
             
         UIShowHideDeathPanel();
     }
-
-
-
 
     void Timer() {
         timeLeft -= Time.deltaTime;
@@ -236,12 +275,24 @@ public class gamemanager : MonoBehaviour {
         return;
     }
 
+    public void ResetTimer() {
+        Debug.Log("Reset Timer");
+        timeLeft = timeDefault;
+    }
+
+    /// <summary>
+    /// Restart the current level
+    /// </summary>
+    public void ResetLevel() {
+
+    }
+
     public void RestartGame() {
         ResetPlayePos();
         currentLevel = 1;
-        dead = 0;
+        dead = false;
 
-        timeLeft = timeDefault;
+        ResetTimer();
         UIShowHideDeathPanel();
     }
 
@@ -259,5 +310,7 @@ public class gamemanager : MonoBehaviour {
         }
     }
 
-
+    public void SetLockMovement(bool setting) {
+        lockMovement = setting;
+    }
 }

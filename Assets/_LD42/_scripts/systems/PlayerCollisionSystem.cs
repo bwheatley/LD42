@@ -21,7 +21,10 @@ namespace Hybrid.Systems
                     entity.PlayerCollision.newCollide = 1;
 
                     //Victory?
-                    if (entity.PlayerCollision.lastColldierType == gamemanager.instance.victoryCollider) {
+                    if (entity.PlayerCollision.lastColldierType == gamemanager.instance.victoryCollider 
+                        && gamemanager.instance.GetNextLevel() == false) {
+                        gamemanager.instance.SetNextLevel();
+                        gamemanager.instance.SetLockMovement(true);
                         gamemanager.instance.NextLevel();
                         return;
                     }
