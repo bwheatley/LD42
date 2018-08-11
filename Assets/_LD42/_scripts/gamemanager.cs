@@ -39,12 +39,12 @@ public class gamemanager : MonoBehaviour {
         GenerateMap(mapWidth, mapHeight);
 
         //Perlin Noise it up
-        //PerlinNoise(map, seed);
+        PerlinNoise(map, seed);
 
         //Randomly set 0,0 and 10,10 just to see where they are to the map
-        map[0, 0] = 1;
-        map[9, 9] = 1;
-            
+        //map[0, 0] = 1;
+        //map[9, 9] = 1;
+
 
         //Render Map
         RenderMap(map, tileMap, selectedTile);
