@@ -225,7 +225,12 @@ public class gamemanager : MonoBehaviour {
         GenerateMap(mapSize.x, mapSize.y, false);
         RenderMap(map, _tilemap, tiles[0]);
         ReDrawMap(map, _tilemap, tiles[0]);
-        PerlinNoise(map, _tilemap, tiles[1], seed);
+        //PerlinNoise(map, _tilemap, tiles[1], seed);
+    }
+
+    public int GetRandomTile(int min, int max) {
+        var _int = Random.Range(min, max);
+        return _int;
     }
 
     public void GenerateMap(int width, int height, bool empty = true) {
@@ -247,6 +252,18 @@ public class gamemanager : MonoBehaviour {
         }
 
     }
+
+    public static float CalculateNoiseValue(PathFinding.Int2 pos, Vector2 offset, float scale)
+    {
+        float noiseX = Mathf.Abs((pos.x + offset.x) * scale);
+        float noiseY = Mathf.Abs((pos.y + offset.y) * scale);
+
+        //return Mathf.Max( 0, Noise.Generate( noiseX, noiseY ) );
+        
+        return Mathf.Max(0, Mathf.PerlinNoise(noiseX, noiseY));
+        //Just remember we can change this to 1d noise later!
+    }
+
 
     public void RenderMap(int[,] map, Tilemap tilemap, TileBase tile)
     {
@@ -275,9 +292,9 @@ public class gamemanager : MonoBehaviour {
         foreach (var position in tilemap.cellBounds.allPositionsWithin)
         {
             TileBase tile1 = tilemap.GetTile(position);
+            tilemap.SetTile(position, tiles[GetRandomTile(0, 4)]);
             if (tile1 != tile)
             {
-                tilemap.SetTile(position, null);
             }
         }
     }
@@ -411,6 +428,7 @@ public class gamemanager : MonoBehaviour {
 
         //GenerateNodes(levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().size);
         SetLevelText(currentLevel);
+        RandomizeBG(levels[currentLevel-1]);
         LoadLevel(currentLevel);
 
         while (currCountdownValue > 0)
