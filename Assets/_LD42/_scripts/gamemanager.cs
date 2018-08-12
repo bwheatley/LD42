@@ -41,12 +41,24 @@ public class gamemanager : MonoBehaviour {
 
     //Death Stuff
     public GameObject uiDeadPanel;
+    public GameObject uiStartPanel;
+    public GameObject uiWinPanel;
     public TextMeshProUGUI uiDeadLevelText;
     public Button uiDeadButton;
     public GameObject uiNextLevelText;
 
-
     //END UI STUFF
+
+    public LayerMask hitLayers;
+    public bool paused = true;
+    public float minimumMoveRange = .75f;
+
+
+    //Audio
+    public AudioClip characterWalk;
+    public AudioSource characterAudioSource;
+    public AudioSource characterLevelDone;
+
 
     public bool playeMoving = false;
     public GameObject[] levels;
@@ -108,11 +120,17 @@ public class gamemanager : MonoBehaviour {
         //GenerateNodes(levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().size);
 
         //Load Initial level
+        uiStartPanel.SetActive(true);
         SetLevelText(currentLevel);
         DisableAllLevels();
         LoadLevel(currentLevel-1);
 
     }
+
+    public void QuitGame() {
+        Application.Quit();
+    }
+
 
     public void SetNextLevel() {
         nextLevel = true;
@@ -126,13 +144,36 @@ public class gamemanager : MonoBehaviour {
     void Update () {
 
         //Run timer
-	    if (!dead) {
+	    if (!dead && !paused) {
 	        Timer();
 	    }
 
         //GetTile(player.transform.position);
 
 	}
+
+    public void PlayWalk(bool playSound) {
+
+        switch (playSound) {
+            case true:
+                if (characterAudioSource.isPlaying == false)
+                {
+                    characterAudioSource.clip = characterWalk;
+                    characterAudioSource.Play();
+                }
+                break;
+            case false:
+                characterAudioSource.Stop();
+                if (characterAudioSource.isPlaying == true)
+                {
+                    characterAudioSource.clip = characterWalk;
+                    characterAudioSource.Stop();
+                }
+                break;
+        }
+
+
+    }
 
     public Vector3Int GetTile(Vector3 position) {
 
@@ -205,7 +246,6 @@ public class gamemanager : MonoBehaviour {
         }
 
     }
-
 
     public void CheckMap(Tilemap tilemap) {
         Debug.Log(string.Format("Tilemap {0} - Size: {1}  ", tilemap.cellBounds, tilemap.cellBounds.size));
@@ -316,14 +356,18 @@ public class gamemanager : MonoBehaviour {
 
     public IEnumerator NextLevelIE() {
         if (currentLevel == maxlevel) {
-            //TODO LAST LEVEL DO SOMETHING NICE
+            WinGame();
+            yield return null;
         }
 
         Debug.Log(string.Format("Next Level!"));
 
+        paused = true;
         UIShowHideUIElement(uiNextLevelText);
         var _animator = uiNextLevelText.GetComponent<Animator>();
         _animator.Play("next_level_text_animation", -1, 0f);
+        characterAudioSource.Stop();        //No sound walking if you're not walking
+        characterLevelDone.Play();
 
         StartCoroutine(StartCountdown(.75f));
 
@@ -344,6 +388,7 @@ public class gamemanager : MonoBehaviour {
         UIShowHideUIElement(uiNextLevelText);
         SetLockMovement(false);
         nextLevel = false;
+        paused = false;
 
 
         yield return null;
@@ -374,7 +419,6 @@ public class gamemanager : MonoBehaviour {
         dead = true;
 
         //Set last level
-        //TODO Add a Retry level button
         uiDeadLevelText.text = string.Format("Last Level Reached: {0:N0}", currentLevel);
             
         UIShowHideDeathPanel();
@@ -461,6 +505,16 @@ public class gamemanager : MonoBehaviour {
             //_myCamera.LockCamera(true);
             _gameObject.SetActive(true);
         }
+    }
+
+    public void WinGame() {
+        UIShowHideUIElement(uiWinPanel);
+
+    }
+
+    public void StartGame() {
+        UIShowHideUIElement(uiStartPanel);
+        paused = false;
     }
 
     public void SetLockMovement(bool setting) {
