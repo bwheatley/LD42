@@ -10,6 +10,7 @@ public class gamemanager : MonoBehaviour {
     public int mapWidth;
     public int mapHeight;
     public int[,] map;
+    public Node[,] grid;
     public GameObject mainCharacter;
     public static gamemanager instance;
 
@@ -30,8 +31,8 @@ public class gamemanager : MonoBehaviour {
     public int playerLives = 10;
     [HideInInspector]
     public int defaultLives = 10;
-
-
+    public GameObject enemyHolder;
+    public List<GameObject> enemies;
 
     //START UI STUFF
     public TextMeshProUGUI uiLevel;
@@ -93,7 +94,15 @@ public class gamemanager : MonoBehaviour {
         //V2 of the game
         //Debug.Log(string.Format("Load Level {0} Current Level: {1}", levels[currentLevel].name, levels[currentLevel - 1].name));
 
+        //var _size = levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().cellBounds.size;
+        //grid = new Node[_size.x,_size.y];
 
+        //CheckMap(levels[currentLevel-1].transform.GetChild(0).GetComponent<Tilemap>());
+        //CheckMap(levels[currentLevel - 1].transform.GetChild(1).GetComponent<Tilemap>());
+        //CheckMap(levels[currentLevel - 1].transform.GetChild(2).GetComponent<Tilemap>());
+        //CheckMap(levels[currentLevel - 1].transform.GetChild(3).GetComponent<Tilemap>());
+
+        //GenerateNodes(levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().size);
 
     }
 
@@ -113,13 +122,42 @@ public class gamemanager : MonoBehaviour {
 	        Timer();
 	    }
 
+        //GetTile(player.transform.position);
+
 	}
+
+    public Vector3Int GetTile(Vector3 position) {
+
+        GridLayout gridLayout = levels[currentLevel - 1].GetComponent<GridLayout>();
+        Vector3Int cellPosition = gridLayout.WorldToCell(position);
+
+        //var _bg = levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>()
+        //    .GetTile(player.transform.position);
+        Debug.Log(string.Format("Cell Position {0}", cellPosition));
+
+        return cellPosition;
+    }
+
+    public PathFinding.Int2 GetTileInt2(Vector3 position)
+    {
+
+        GridLayout gridLayout = levels[currentLevel - 1].GetComponent<GridLayout>();
+        Vector3Int cellPosition = gridLayout.WorldToCell(position);
+
+
+        Debug.Log(string.Format("Cell Position {0}", cellPosition));
+
+        PathFinding.Int2 pos = new PathFinding.Int2(cellPosition.x, cellPosition.y);
+
+        return pos;
+    }
 
     public void SetLevelText(int level) {
         uiLevel.text = string.Format("Level: {0}", level);
     }
 
     public void SetPlayerLives(int lives) {
+        Debug.Log(string.Format("Lives to {0}", lives));
         playerLives = lives;
         uiLivesLeft.text = string.Format("Lives: {0:N0}", lives);
     }
@@ -142,6 +180,27 @@ public class gamemanager : MonoBehaviour {
             }
         }
 
+    }
+
+    public void GenerateNodes(Vector3Int size) {
+        for (int x = 0; x <= size.x; x++)
+        {
+            for (int y = 0; y <= size.y; y++)
+            {
+                Debug.Log(string.Format("X {0} Y {1}", x, y));
+                //grid[x, y] = new Node(walkable, worldPoint, x, y, _reachableIndex);
+                var _worldPos = new PathFinding.Int2(x, y);
+                grid[x,y] = new Node(true, _worldPos, x, y);
+
+
+            }
+        }
+
+    }
+
+
+    public void CheckMap(Tilemap tilemap) {
+        Debug.Log(string.Format("Tilemap {0} - Size: {1}  ", tilemap.cellBounds, tilemap.cellBounds.size));
     }
 
     //Render Full tiles
@@ -235,10 +294,13 @@ public class gamemanager : MonoBehaviour {
         }
 
         Debug.Log(string.Format("Next Level!"));
+
+
         ResetPlayePos();
         IncrementTimer(timeLeft);
         currentLevel++;
 
+        GenerateNodes(levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().size);
         SetLevelText(currentLevel);
         LoadLevel(currentLevel);
 
@@ -254,9 +316,12 @@ public class gamemanager : MonoBehaviour {
     /// <param name="level"></param>
     public void LoadLevel(int level) {
         
-        Debug.Log(string.Format("Load Level {0} Current Level: {1}", levels[currentLevel-1].name, levels[currentLevel-2].name));
         //Turn off current level
-        levels[currentLevel - 2].SetActive(false);
+        if (level >= 2) {
+            Debug.Log(string.Format("Load Level {0} Current Level: {1}", levels[currentLevel - 1].name, levels[currentLevel - 2].name));
+            levels[currentLevel - 2].SetActive(false);
+        }
+
         levels[currentLevel - 1].SetActive(true);
     }
 
@@ -301,7 +366,7 @@ public class gamemanager : MonoBehaviour {
     /// Restart the current level
     /// </summary>
     public void RetryLevel() {
-        SetPlayerLives(playerLives--);
+        SetPlayerLives(playerLives-1);
         if (playerLives == 0) {
             RestartGame();
         }
@@ -312,10 +377,21 @@ public class gamemanager : MonoBehaviour {
         UIShowHideDeathPanel();
     }
 
+    public void DisableAllLevels() {
+        for (int i = 0; i < maxlevel; i++) {
+            levels[i].SetActive(false);
+        }
+    }
+
     public void RestartGame() {
+
+
+        DisableAllLevels();
         ResetPlayePos();
         currentLevel = 1;
+        playerLives = defaultLives;
         dead = false;
+        LoadLevel(1);
 
         ResetTimer();
         UIShowHideDeathPanel();
