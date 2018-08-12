@@ -104,6 +104,11 @@ public class gamemanager : MonoBehaviour {
 
         //GenerateNodes(levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().size);
 
+        //Load Initial level
+        SetLevelText(currentLevel);
+        DisableAllLevels();
+        LoadLevel(currentLevel-1);
+
     }
 
     public void SetNextLevel() {
@@ -300,7 +305,7 @@ public class gamemanager : MonoBehaviour {
         IncrementTimer(timeLeft);
         currentLevel++;
 
-        GenerateNodes(levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().size);
+        //GenerateNodes(levels[currentLevel - 1].transform.GetChild(0).GetComponent<Tilemap>().size);
         SetLevelText(currentLevel);
         LoadLevel(currentLevel);
 
