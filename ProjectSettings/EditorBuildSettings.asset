@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/Scenes/runningoutoftime3.unity
+    guid: dffd330a85e35f5418ef543e0ea4fcba
   m_configObjects: {}
