@@ -62,6 +62,7 @@ public class gamemanager : MonoBehaviour {
 
     public bool playeMoving = false;
     public GameObject[] levels;
+    public TileBase[] tiles;
     [HideInInspector] public float knockbackforce = 5f;
 
 
@@ -124,6 +125,8 @@ public class gamemanager : MonoBehaviour {
         SetLevelText(currentLevel);
         DisableAllLevels();
         LoadLevel(currentLevel-1);
+
+        RandomizeBG(levels[currentLevel - 1]);
 
     }
 
@@ -211,13 +214,27 @@ public class gamemanager : MonoBehaviour {
         uiLivesLeft.text = string.Format("Lives: {0:N0}", lives);
     }
 
+    public void RandomizeBG(GameObject level) {
+        Debug.Log(string.Format("Randomize Level: {0}", level.name));
+
+        var _tilemap = level.transform.GetChild(0).GetComponent<Tilemap>();
+        var mapSize = _tilemap.cellBounds.size;
+
+        //map = new int[mapSize.x,mapSize.y];
+
+        GenerateMap(mapSize.x, mapSize.y, false);
+        RenderMap(map, _tilemap, tiles[0]);
+        ReDrawMap(map, _tilemap, tiles[0]);
+        PerlinNoise(map, _tilemap, tiles[1], seed);
+    }
+
     public void GenerateMap(int width, int height, bool empty = true) {
 
         map = new int[width, height];
 
         for (int x = 0; x <= map.GetUpperBound(0); x++) {
             for (int y = 0; y <= map.GetUpperBound(1); y++) {
-                Debug.Log(string.Format("X {0} Y {1}", x, y));
+                //Debug.Log(string.Format("X {0} Y {1}", x, y));
 
                 if (empty) {
                     map[x, y] = 0;
@@ -230,6 +247,77 @@ public class gamemanager : MonoBehaviour {
         }
 
     }
+
+    public void RenderMap(int[,] map, Tilemap tilemap, TileBase tile)
+    {
+        Debug.Log(string.Format("Render Map - W{0}H{1}", map.GetUpperBound(0), map.GetUpperBound(1)));
+
+
+        //Clear in case we have leftovers, regenerations etc
+        //tilemap.ClearAllTiles();
+
+        foreach (var position in tilemap.cellBounds.allPositionsWithin)
+        {
+            TileBase tile1 = tilemap.GetTile(position);
+            if (tile1 != tile)
+            {
+                tilemap.SetTile(position, tile);
+                //HandleReplaceTile(tilemap, tile1, position);
+            }
+        }
+
+    }
+
+    //Clear Empty Hex's
+    public void ReDrawMap(int[,] map, Tilemap tilemap, TileBase tile)
+    {
+
+        foreach (var position in tilemap.cellBounds.allPositionsWithin)
+        {
+            TileBase tile1 = tilemap.GetTile(position);
+            if (tile1 != tile)
+            {
+                tilemap.SetTile(position, null);
+            }
+        }
+    }
+
+    public void PerlinNoise(int[,] map, Tilemap tilemap, TileBase tile, float seed)
+    {
+        int newPoint;
+        //Used to reduced the position of the Perlin point
+        float reduction = 0.5f;
+
+        foreach (var position in tilemap.cellBounds.allPositionsWithin)
+        {
+            newPoint = Mathf.FloorToInt((Mathf.PerlinNoise(position.x, seed) - reduction) * tilemap.cellBounds.xMax);
+            newPoint += (tilemap.cellBounds.yMax / 2);
+
+            TileBase tile1 = tilemap.GetTile(position);
+
+            //Make sure the noise starts near the halfway point of the height           
+            for (int y = newPoint; y >= 0; y--)
+            {
+                if (newPoint > position.y) {
+                    tilemap.SetTile(position, tile);
+                }
+            }
+
+
+            if (tile1 != tile)
+            {
+                
+            }
+        }
+
+        //Create the Perlin
+        for (int x = 0; x < map.GetUpperBound(0); x++)
+        {
+            
+
+        }
+    }
+
 
     public void GenerateNodes(Vector3Int size) {
         for (int x = 0; x <= size.x; x++)
@@ -252,60 +340,6 @@ public class gamemanager : MonoBehaviour {
     }
 
     //Render Full tiles
-    public void RenderMap(int[,] map, Tilemap tilemap, TileBase tile) {
-        Debug.Log(string.Format("Render Map - W{0}H{1}", map.GetUpperBound(0), map.GetUpperBound(1) ));
-
-
-        //Clear in case we have leftovers, regenerations etc
-        tilemap.ClearAllTiles();
-
-        //Loop through map
-        for (int x = 0; x <= map.GetUpperBound(0); x++) {
-            for (int y = 0; y <= map.GetUpperBound(1); y++) {
-                // 1 = Tile 0 = Nada
-                if (map[x, y] == 1) {
-                    Debug.Log(string.Format("X {0} Y {1} Set as 1", x,y ));
-                    tilemap.SetTile(new Vector3Int(x,y,0), tile);
-                }
-            }
-        }
-
-    }
-
-    //Clear Empty Hex's
-    public void ReDrawMap(int[,] map, Tilemap tilemap, TileBase tile) {
-        //Loop through map
-        for (int x = 0; x <= map.GetUpperBound(0); x++)
-        {
-            for (int y = 0; y <= map.GetUpperBound(1); y++)
-            {
-                // 1 = Tile 0 = Nada
-                if (map[x, y] == 0)
-                {
-                    tilemap.SetTile(new Vector3Int(x, y, 0), null);
-                }
-            }
-        }
-    }
-
-    public void PerlinNoise(int[,] map, float seed)
-    {
-        int newPoint;
-        //Used to reduced the position of the Perlin point
-        float reduction = 0.5f;
-        //Create the Perlin
-        for (int x = 0; x < map.GetUpperBound(0); x++)
-        {
-            newPoint = Mathf.FloorToInt((Mathf.PerlinNoise(x, seed) - reduction) * map.GetUpperBound(1));
-
-            //Make sure the noise starts near the halfway point of the height
-            newPoint += (map.GetUpperBound(1) / 2);
-            for (int y = newPoint; y >= 0; y--)
-            {
-                map[x, y] = 1;
-            }
-        }
-    }
 
     public int GetColliderType(string colliderName)
     {
