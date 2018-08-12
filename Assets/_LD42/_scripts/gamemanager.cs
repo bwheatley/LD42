@@ -43,6 +43,7 @@ public class gamemanager : MonoBehaviour {
     public GameObject uiDeadPanel;
     public TextMeshProUGUI uiDeadLevelText;
     public Button uiDeadButton;
+    public GameObject uiNextLevelText;
 
     //END UI STUFF
 
@@ -56,7 +57,7 @@ public class gamemanager : MonoBehaviour {
     public bool dead = false;
     private bool nextLevel = false;
     public bool lockMovement = false;
-
+    float currCountdownValue;
 
     private void Awake()
     {
@@ -293,14 +294,43 @@ public class gamemanager : MonoBehaviour {
         //newCollide = 0;
     }
 
+    
+    public IEnumerator StartCountdown(float countdownValue = 10)
+    {
+        currCountdownValue = countdownValue;
+        while (currCountdownValue > 0)
+        {
+            currCountdownValue -= Time.deltaTime;
+            Debug.Log("Countdown: " + currCountdownValue);
+            //yield return new WaitForSeconds(1.0f);
+            yield return null;
+            //currCountdownValue--;
+        }
+    }
+
     public void NextLevel() {
+        StartCoroutine(NextLevelIE());
+    }
+
+    public IEnumerator NextLevelIE() {
         if (currentLevel == maxlevel) {
             //TODO LAST LEVEL DO SOMETHING NICE
         }
 
         Debug.Log(string.Format("Next Level!"));
 
+        UIShowHideUIElement(uiNextLevelText);
+        var _animator = uiNextLevelText.GetComponent<Animator>();
+        _animator.Play("next_level_text_animation", -1, 0f);
 
+        StartCoroutine(StartCountdown(1));
+
+        while (currCountdownValue > 0) {
+            //Wait
+            yield return null;
+        }
+
+        UIShowHideUIElement(uiNextLevelText);
         ResetPlayePos();
         IncrementTimer(timeLeft);
         currentLevel++;
@@ -312,10 +342,10 @@ public class gamemanager : MonoBehaviour {
         SetLockMovement(false);
         nextLevel = false;
 
-
+        yield return null;
     }
 
-    /// <summary>
+ /// <summary>
     /// Load level needs to turn off the old grid map and on the new one
     /// </summary>
     /// <param name="level"></param>
@@ -413,6 +443,19 @@ public class gamemanager : MonoBehaviour {
         {
             //_myCamera.LockCamera(true);
             uiDeadPanel.SetActive(true);
+        }
+    }
+
+    public void UIShowHideUIElement(GameObject _gameObject) {
+        if (_gameObject.activeSelf)
+        {
+            //_myCamera.LockCamera(false);
+            _gameObject.SetActive(false);
+        }
+        else
+        {
+            //_myCamera.LockCamera(true);
+            _gameObject.SetActive(true);
         }
     }
 
