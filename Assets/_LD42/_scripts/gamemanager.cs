@@ -45,8 +45,10 @@ public class gamemanager : MonoBehaviour {
     public Button uiDeadButton;
     public GameObject uiNextLevelText;
 
+
     //END UI STUFF
 
+    public bool playeMoving = false;
     public GameObject[] levels;
     [HideInInspector] public float knockbackforce = 5f;
 
@@ -323,14 +325,8 @@ public class gamemanager : MonoBehaviour {
         var _animator = uiNextLevelText.GetComponent<Animator>();
         _animator.Play("next_level_text_animation", -1, 0f);
 
-        StartCoroutine(StartCountdown(1));
+        StartCoroutine(StartCountdown(.75f));
 
-        while (currCountdownValue > 0) {
-            //Wait
-            yield return null;
-        }
-
-        UIShowHideUIElement(uiNextLevelText);
         ResetPlayePos();
         IncrementTimer(timeLeft);
         currentLevel++;
@@ -339,8 +335,16 @@ public class gamemanager : MonoBehaviour {
         SetLevelText(currentLevel);
         LoadLevel(currentLevel);
 
+        while (currCountdownValue > 0)
+        {
+            //Wait
+            yield return null;
+        }
+
+        UIShowHideUIElement(uiNextLevelText);
         SetLockMovement(false);
         nextLevel = false;
+
 
         yield return null;
     }

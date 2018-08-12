@@ -25,6 +25,14 @@ namespace Hybrid.Systems
                 var position = entity.Transform.position;
                 var rotation = entity.Transform.rotation;
 
+                //If player is moving say so
+                if (entity.PlayerInput.Horizontal != 0 || entity.PlayerInput.Vertical != 0) {
+                    gamemanager.instance.playeMoving = true;
+                }
+                else {
+                    gamemanager.instance.playeMoving = false;
+                }
+
                 //No moving if dead
                 if (gamemanager.instance.dead || gamemanager.instance.lockMovement) {
                     entity.PlayerInput.Horizontal = 0;
