@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\unity\LudemDare42" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor-firstpass.csproj" t="IncludeRecursive" />
+      <e p="Assembly-CSharp-firstpass.csproj" t="IncludeRecursive" />
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="LudemDare42.sln" t="IncludeFlat" />
+    </e>
+    <e p="C:\Users\bill\.Rider2019.2\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\bill\.Rider2019.2\system\resharper-host\Local\Transient\ReSharperHost\v192\SolutionCaches\_LudemDare42.-2028876972.00" t="ExcludeRecursive" />
+  </component>
+</project>
